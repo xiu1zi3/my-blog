@@ -33,10 +33,10 @@ const Article = () => {
     script.src = 'https://giscus.app/client.js';
     script.async = true;
     script.crossOrigin = 'anonymous';
-    script.setAttribute('data-repo', 'yourusername/your-repo'); // 替换为你的 GitHub 仓库
-    script.setAttribute('data-repo-id', 'YOUR_REPO_ID'); // 替换为你的仓库 ID
+    script.setAttribute('data-repo', 'xiu1zi3/my-blog'); // 替换为你的 GitHub 仓库
+    script.setAttribute('data-repo-id', 'R_kgDOR_G5cA'); // 替换为你的仓库 ID
     script.setAttribute('data-category', 'Announcements'); // 替换为你的讨论类别
-    script.setAttribute('data-category-id', 'YOUR_CATEGORY_ID'); // 替换为你的类别 ID
+    script.setAttribute('data-category-id', 'DIC_kwDOR_G5cM4C6iUW'); // 替换为你的类别 ID
     script.setAttribute('data-mapping', 'pathname');
     script.setAttribute('data-reactions-enabled', '1');
     script.setAttribute('data-emit-metadata', '0');
