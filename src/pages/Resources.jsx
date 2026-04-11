@@ -80,7 +80,7 @@ const Resources = () => {
         </div>
 
         <div className="card">
-          <h2 className="text-2xl font-bold mb-6">
+          <h2 className="text-2xl text-gray-900 font-bold mb-6">
             {resourceCategories.find(cat => cat.id === selectedCategory)?.name}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +92,7 @@ const Resources = () => {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors"
                 >
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
                     <svg
@@ -111,8 +111,8 @@ const Resources = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold">{resource.name}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <h3 className="text-gray-900 font-semibold">{resource.name}</h3>
+                    <p className="text-sm text-gray-500">
                       {resource.description}
                     </p>
                   </div>

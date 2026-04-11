@@ -21,3 +21,10 @@ npm run dev
 ```
 
 http://localhost:5173/
+
+cloudflare 配合阿里云域名实现 国内访问vercel 上的项目
+主要：
+https://juejin.cn/post/7301193497247727652
+次要：
+https://blog.wuzm219.cn/2024/12/register-domain-with-cloudflare/
+https://zhuanlan.zhihu.com/p/646818470
