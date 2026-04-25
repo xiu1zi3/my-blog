@@ -45,7 +45,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-card shadow-md">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-primary">
-          修子的博客
+          修子的日记
         </Link>
         <div className="hidden md:flex space-x-8">
           <NavLink

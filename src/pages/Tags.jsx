@@ -1,73 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { getArticles } from '../utils/articles';
 
 const Tags = () => {
-  // 示例文章数据
-  const articles = [
-    {
-      id: 1,
-      title: '前端性能优化实战指南',
-      category: '前端开发',
-      tags: ['性能优化', 'Webpack', '最佳实践'],
-      summary: '从多个维度分析前端性能优化的方法和技巧',
-      date: '2026-04-01'
-    },
-    {
-      id: 2,
-      title: 'React 18 新特性解析',
-      category: '前端开发',
-      tags: ['React', '新特性', '前端框架'],
-      summary: '深入解析 React 18 的新特性和使用方法',
-      date: '2026-03-20'
-    },
-    {
-      id: 3,
-      title: 'Node.js 后端开发最佳实践',
-      category: '后端实战',
-      tags: ['Node.js', 'Express', 'MongoDB'],
-      summary: '分享 Node.js 后端开发的最佳实践和常见问题解决方案',
-      date: '2026-03-15'
-    },
-    {
-      id: 4,
-      title: 'MongoDB 数据库设计技巧',
-      category: '后端实战',
-      tags: ['MongoDB', '数据库', '设计'],
-      summary: 'MongoDB 数据库设计的最佳实践和技巧',
-      date: '2026-03-05'
-    },
-    {
-      id: 5,
-      title: 'VS Code 插件推荐',
-      category: '工具测评',
-      tags: ['VS Code', '开发工具', '效率提升'],
-      summary: '推荐一些提高开发效率的 VS Code 插件',
-      date: '2026-03-01'
-    },
-    {
-      id: 6,
-      title: 'Docker 容器化部署指南',
-      category: '工具测评',
-      tags: ['Docker', '容器化', '部署'],
-      summary: 'Docker 容器化部署的实践指南',
-      date: '2026-02-20'
-    }
-  ];
-
-  // 计算每个标签的文章数量
-  const tagCounts = {};
-  articles.forEach(article => {
-    article.tags.forEach(tag => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-    });
-  });
-
-  // 提取所有标签并排序
-  const tags = Object.keys(tagCounts).sort();
+  const [articles, setArticles] = useState([]);
+  const [tagCounts, setTagCounts] = useState({});
+  const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const data = await getArticles();
+        setArticles(data);
+        
+        // 计算每个标签的文章数量
+        const counts = {};
+        data.forEach(article => {
+          if (article.tags && Array.isArray(article.tags)) {
+            article.tags.forEach(tag => {
+              counts[tag] = (counts[tag] || 0) + 1;
+            });
+          }
+        });
+        setTagCounts(counts);
+        
+        // 提取所有标签并排序
+        const sortedTags = Object.keys(counts).sort();
+        setTags(sortedTags);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   // 筛选当前标签的文章
   const filteredArticles = selectedTag
-    ? articles.filter(article => article.tags.includes(selectedTag))
+    ? articles.filter(article => article.tags && article.tags.includes(selectedTag))
     : [];
 
   // 根据文章数量计算字体大小
@@ -82,6 +56,10 @@ const Tags = () => {
     const size = minSize + ((count - minCount) / (maxCount - minCount)) * (maxSize - minSize);
     return Math.round(size);
   };
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen py-12">
@@ -117,31 +95,33 @@ const Tags = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredArticles.map((article) => (
-                <div key={article.id} className="card">
-                  <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-2">
-                      {article.category}
-                    </span>
-                    <h3 className="text-xl font-bold mb-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      {article.summary}
-                    </p>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div className="flex space-x-2">
-                      {article.tags.map((tag, index) => (
-                        <span key={index} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
-                          {tag}
-                        </span>
-                      ))}
+                <Link key={article.id} to={`/article/${article.id}`} className="block">
+                  <div className="card hover:shadow-lg transition-shadow duration-300">
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-2">
+                        {article.category}
+                      </span>
+                      <h3 className="text-xl font-bold mb-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">
+                        {article.summary}
+                      </p>
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {article.date}
-                    </span>
+                    <div className="flex justify-between items-center">
+                      <div className="flex space-x-2">
+                        {article.tags.map((tag, index) => (
+                          <span key={index} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {article.date}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

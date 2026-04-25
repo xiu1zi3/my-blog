@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getArticles, getCategories } from '../utils/articles';
 
 const Categories = () => {
-  // 直接获取文章和分类数据
-  const articles = getArticles();
-  const categories = getCategories();
-  const [selectedCategory, setSelectedCategory] = useState(categories[0] || '');
+  const [articles, setArticles] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [articlesData, categoriesData] = await Promise.all([
+          getArticles(),
+          getCategories()
+        ]);
+        setArticles(articlesData);
+        setCategories(categoriesData);
+        if (categoriesData.length > 0) {
+          setSelectedCategory(categoriesData[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // 筛选当前分类的文章
   const filteredArticles = articles.filter(article => article.category === selectedCategory);
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen py-12">

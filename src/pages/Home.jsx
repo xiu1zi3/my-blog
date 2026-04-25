@@ -1,37 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getArticles } from '../utils/articles';
 
 const Home = () => {
-  // 示例文章数据
-  const articles = [
-    {
-      id: 1,
-      title: '前端性能优化实战指南',
-      category: '前端开发',
-      tags: ['性能优化', 'Webpack', '最佳实践'],
-      summary: '从多个维度分析前端性能优化的方法和技巧',
-      content: '包括代码分割、懒加载、图片优化、缓存策略等',
-      date: '2026-04-01'
-    },
-    {
-      id: 2,
-      title: 'Node.js 后端开发最佳实践',
-      category: '后端实战',
-      tags: ['Node.js', 'Express', 'MongoDB'],
-      summary: '分享 Node.js 后端开发的最佳实践和常见问题解决方案',
-      content: '包括项目结构、中间件使用、数据库设计等',
-      date: '2026-03-15'
-    },
-    {
-      id: 3,
-      title: 'VS Code 插件推荐',
-      category: '工具测评',
-      tags: ['VS Code', '开发工具', '效率提升'],
-      summary: '推荐一些提高开发效率的 VS Code 插件',
-      content: '包括代码提示、格式化、版本控制等方面的插件',
-      date: '2026-03-01'
-    }
-  ];
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const data = await getArticles();
+        setArticles(data);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+  }
+
+  // 计算当前页的文章
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentArticles = articles.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(articles.length / itemsPerPage);
 
   return (
     <div className="min-h-screen">
@@ -39,7 +39,7 @@ const Home = () => {
       <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            欢迎来到修子的博客
+            修子的日记
           </h1>
           <p className="text-xl md:text-2xl mb-8">
             专注全栈实战，分享踩坑笔记
@@ -57,7 +57,7 @@ const Home = () => {
             最新文章
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {articles.map((article) => (
+            {currentArticles.map((article) => (
               <Link key={article.id} to={`/article/${article.id}`} className="block">
                 <div className="card hover:shadow-lg transition-shadow duration-300">
                   <div className="mb-4">
@@ -87,6 +87,56 @@ const Home = () => {
               </Link>
             ))}
           </div>
+
+          {/* 分页导航 */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex flex-col md:flex-row justify-between items-center">
+              <div className="flex space-x-2 mb-4 md:mb-0">
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  上一页
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 border rounded-md ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-gray-100'}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  下一页
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">每页显示：</span>
+                <select 
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1); // 重置到第一页
+                  }}
+                  className="px-3 py-2 border rounded-md"
+                >
+                  <option value="3">3篇</option>
+                  <option value="6">6篇</option>
+                  <option value="9">9篇</option>
+                  <option value="12">12篇</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

@@ -7,50 +7,50 @@ const Resources = () => {
       id: 'learning',
       name: '学习网站',
       resources: [
-        { name: 'MDN Web Docs', url: 'https://developer.mozilla.org', description: 'Web 开发权威文档' },
-        { name: 'GitHub Learning Lab', url: 'https://lab.github.com', description: 'GitHub 学习平台' },
-        { name: 'freeCodeCamp', url: 'https://www.freecodecamp.org', description: '免费编程学习平台' },
-        { name: '前端工程师手册', url: 'https://frontend-dev-handbook.com', description: '前端开发全面指南' }
+        { name: 'MDN Web Docs', url: '#', description: 'Web 开发权威文档' },
+        { name: 'GitHub Learning Lab', url: '#', description: 'GitHub 学习平台' },
+        { name: 'freeCodeCamp', url: '#', description: '免费编程学习平台' },
+        { name: '前端工程师手册', url: '#', description: '前端开发全面指南' }
       ]
     },
     {
       id: 'tools',
       name: '开发工具',
       resources: [
-        { name: 'VS Code', url: 'https://code.visualstudio.com', description: '轻量级代码编辑器' },
-        { name: 'GitHub Desktop', url: 'https://desktop.github.com', description: 'GitHub 桌面客户端' },
-        { name: 'Postman', url: 'https://www.postman.com', description: 'API 测试工具' },
-        { name: 'Docker', url: 'https://www.docker.com', description: '容器化平台' }
+        { name: 'VS Code', url: '#', description: '轻量级代码编辑器' },
+        { name: 'GitHub Desktop', url: '#', description: 'GitHub 桌面客户端' },
+        { name: 'Postman', url: '#', description: 'API 测试工具' },
+        { name: 'Docker', url: '#', description: '容器化平台' }
       ]
     },
     {
       id: 'design',
       name: '设计资源',
       resources: [
-        { name: 'Figma', url: 'https://www.figma.com', description: '协作设计工具' },
-        { name: 'Canva', url: 'https://www.canva.com', description: '在线设计工具' },
-        { name: 'Unsplash', url: 'https://unsplash.com', description: '免费高清图片' },
-        { name: 'Iconify', url: 'https://iconify.design', description: '图标库' }
+        { name: 'Figma', url: '#', description: '协作设计工具' },
+        { name: 'Canva', url: '#', description: '在线设计工具' },
+        { name: 'Unsplash', url: '#', description: '免费高清图片' },
+        { name: 'Iconify', url: '#', description: '图标库' }
       ]
     },
     {
       id: 'api',
       name: 'API 接口',
       resources: [
-        { name: 'GitHub API', url: 'https://docs.github.com/en/rest', description: 'GitHub 开发者 API' },
-        { name: 'OpenAI API', url: 'https://platform.openai.com/docs/api-reference', description: 'OpenAI 人工智能 API' },
-        { name: 'Weather API', url: 'https://openweathermap.org/api', description: '天气数据 API' },
-        { name: 'REST Countries API', url: 'https://restcountries.com', description: '国家信息 API' }
+        { name: 'GitHub API', url: '#', description: 'GitHub 开发者 API' },
+        { name: 'OpenAI API', url: '#', description: 'OpenAI 人工智能 API' },
+        { name: 'Weather API', url: '#', description: '天气数据 API' },
+        { name: 'REST Countries API', url: '#', description: '国家信息 API' }
       ]
     },
     {
       id: 'community',
       name: '技术社区',
       resources: [
-        { name: 'GitHub Discussions', url: 'https://github.com/discussions', description: 'GitHub 社区讨论' },
-        { name: 'Stack Overflow', url: 'https://stackoverflow.com', description: '编程问答平台' },
-        { name: '掘金', url: 'https://juejin.cn', description: '技术分享平台' },
-        { name: '知乎', url: 'https://www.zhihu.com', description: '问答社区' }
+        { name: 'GitHub Discussions', url: '#', description: 'GitHub 社区讨论' },
+        { name: 'Stack Overflow', url: '#', description: '编程问答平台' },
+        { name: '掘金', url: '#', description: '技术分享平台' },
+        { name: '知乎', url: '#', description: '问答社区' }
       ]
     }
   ];
@@ -80,7 +80,7 @@ const Resources = () => {
         </div>
 
         <div className="card">
-          <h2 className="text-2xl text-gray-900 font-bold mb-6">
+          <h2 className="text-2xl font-bold mb-6">
             {resourceCategories.find(cat => cat.id === selectedCategory)?.name}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -92,7 +92,7 @@ const Resources = () => {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors"
+                  className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 >
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
                     <svg
@@ -111,8 +111,8 @@ const Resources = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-gray-900 font-semibold">{resource.name}</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="font-semibold">{resource.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {resource.description}
                     </p>
                   </div>
