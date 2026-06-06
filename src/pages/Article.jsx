@@ -5,7 +5,6 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getArticle } from '../utils/articles';
 import { useTheme } from '../context/ThemeContext';
-import admonitions from 'remark-admonitions';
 
 const CodeBlock = ({ children, language, ...props }) => {
   const [copied, setCopied] = useState(false);
@@ -109,6 +108,12 @@ const Article = () => {
     const fetchArticle = async () => {
       try {
         const data = await getArticle(id);
+        
+        if (!data) {
+          setArticle(null);
+          return;
+        }
+        
         // 提取标题
         const extractedHeadings = extractHeadings(data.content);
         setHeadings(extractedHeadings);
@@ -267,7 +272,6 @@ const Article = () => {
           {hasTOC && <TOC headings={headings} />} 
           
           <ReactMarkdown
-            remarkPlugins={[admonitions]}
             components={{
               code({ node, inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
