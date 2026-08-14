@@ -138,3 +138,165 @@ body {
 .dark .admonition-info {
   background-color: rgba(144, 202, 249, 0.15);
 }
+
+/* ========== 加载动画样式 ========== */
+
+/* 骨架屏流光效果 */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(156, 163, 175, 0.1) 0%,
+    rgba(156, 163, 175, 0.3) 50%,
+    rgba(156, 163, 175, 0.1) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.dark .animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(75, 85, 99, 0.2) 0%,
+    rgba(75, 85, 99, 0.4) 50%,
+    rgba(75, 85, 99, 0.2) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* 让 pulse 动画配合 shimmer 使用，覆盖 animate-pulse 产生的骨架元素 */
+.skeleton-line {
+  position: relative;
+  overflow: hidden;
+  background-color: rgb(229 231 235 / 1);
+  border-radius: 0.25rem;
+}
+
+.dark .skeleton-line {
+  background-color: rgb(55 65 81 / 1);
+}
+
+.skeleton-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer-slide 1.5s infinite;
+}
+
+.dark .skeleton-line::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+}
+
+@keyframes shimmer-slide {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 圆点跳动延迟动画 */
+@keyframes dot-flash {
+  0%, 80%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dot-flash {
+  animation: dot-flash 1.4s infinite ease-in-out both;
+}
+
+.dot-flash:nth-child(1) { animation-delay: -0.32s; }
+.dot-flash:nth-child(2) { animation-delay: -0.16s; }
+.dot-flash:nth-child(3) { animation-delay: 0s; }
+
+/* 加载进度条 */
+@keyframes progress-bar {
+  0% {
+    width: 0%;
+    left: 0;
+  }
+  50% {
+    width: 60%;
+    left: 20%;
+  }
+  100% {
+    width: 0%;
+    left: 100%;
+  }
+}
+
+.loading-progress {
+  position: relative;
+  height: 4px;
+  overflow: hidden;
+  background: rgba(64, 158, 255, 0.1);
+  border-radius: 2px;
+}
+
+.loading-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #409eff, #67c23a);
+  border-radius: 2px;
+  animation: progress-bar 2s ease-in-out infinite;
+}
+
+/* 淡入动画 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+/* 旋转加强版 */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}

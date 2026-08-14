@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getArticles, getCategories } from '../utils/articles';
+import Loading from '../components/Loading';
 
 const Categories = () => {
   const [articles, setArticles] = useState([]);
@@ -34,7 +35,7 @@ const Categories = () => {
   const filteredArticles = articles.filter(article => article.category === selectedCategory);
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+    return <Loading type="categories" />;
   }
 
   return (

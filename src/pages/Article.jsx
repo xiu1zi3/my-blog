@@ -5,6 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getArticle } from '../utils/articles';
 import { useTheme } from '../context/ThemeContext';
+import Loading from '../components/Loading';
 
 const CodeBlock = ({ children, language, ...props }) => {
   const [copied, setCopied] = useState(false);
@@ -219,7 +220,7 @@ const Article = () => {
   }, [isDark, article]);
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+    return <Loading type="article" />;
   }
   
   if (!article) {
@@ -273,7 +274,7 @@ const Article = () => {
           
           <ReactMarkdown
             components={{
-              code({ node, inline, className, children, ...props }) {
+              code({ inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
                 if (className && className.includes('language-mermaid')) {
                   return <div className="mermaid">{children}</div>;
@@ -289,42 +290,42 @@ const Article = () => {
                 );
               },
               // 为标题添加锚点 ID 和 scroll-margin-top
-              h1({ node, children, ...props }) {
+              h1({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
                 const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
                 return <h1 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h1>;
               },
-              h2({ node, children, ...props }) {
+              h2({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
                 const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
                 return <h2 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h2>;
               },
-              h3({ node, children, ...props }) {
+              h3({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
                 const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
                 return <h3 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h3>;
               },
-              h4({ node, children, ...props }) {
+              h4({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
                 const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
                 return <h4 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h4>;
               },
-              h5({ node, children, ...props }) {
+              h5({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
                 const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
                 return <h5 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h5>;
               },
-              h6({ node, children, ...props }) {
+              h6({ children, ...props }) {
                 // 提取标题文本
                 const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
                 // 生成锚点 ID，保留汉字和字母数字字符
@@ -332,11 +333,11 @@ const Article = () => {
                 return <h6 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h6>;
               },
               // 确保br标签被正确渲染
-              br({ node, ...props }) {
+              br({ ...props }) {
                 return <br {...props} />;
               },
               // 确保div标签被正确渲染
-              div({ node, children, ...props }) {
+              div({ children, ...props }) {
                 return <div {...props}>{children}</div>;
               }
             }}

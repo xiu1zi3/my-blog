@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getArticles } from '../utils/articles';
+import Loading from '../components/Loading';
 
 const Tags = () => {
   const [articles, setArticles] = useState([]);
@@ -58,7 +59,7 @@ const Tags = () => {
   };
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-12">Loading...</div>;
+    return <Loading type="tags" />;
   }
 
   return (
