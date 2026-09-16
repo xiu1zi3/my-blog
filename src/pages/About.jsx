@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Gallery from '../components/Gallery';
-
-// 头像图片配置：把头像图片放到 public 目录（例如 public/avatar.png），
-// 文件名与下方保持一致即可自动显示；图片不存在时会自动回退为文字头像。
-const AVATAR_SRC = '/src/assets/avatar.jpg';
+// 头像图片：文件位于 src/assets/avatar.jpg，通过 import 引入，
+// Vite 构建时会自动生成正确的线上资源路径（勿写成硬编码的 /src/assets/...）；
+// 运行时图片加载失败会自动回退为文字头像。
+import AVATAR_SRC from '../assets/avatar.jpg';
 
 // 栏目显示开关：需要在页面上展示某个栏目时，把对应项改为 true 即可
 const SECTION_VISIBLE = {
