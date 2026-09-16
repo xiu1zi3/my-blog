@@ -18,6 +18,13 @@
   --color-text: #e0e0e0;
 }
 
+/* index.html 内联样式把 html 背景固定为浅色且 html/body 高度为 100%，
+   body 的深色背景只能覆盖首屏，内容超出首屏时会露出 html 的浅色背景，
+   因此深色模式下需要让 html（画布）也保持深色 */
+html.dark {
+  background-color: #1a1a1a;
+}
+
 body {
   font-family: Inter, system-ui, sans-serif;
   background-color: var(--color-background);

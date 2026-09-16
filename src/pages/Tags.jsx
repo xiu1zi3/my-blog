@@ -102,7 +102,7 @@ const Tags = () => {
                       <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-2">
                         {article.category}
                       </span>
-                      <h3 className="text-xl font-bold mb-2">
+                      <h3 className="text-xl text-gray-600 font-bold mb-2">
                         {article.title}
                       </h3>
                       <p className="text-gray-500 dark:text-gray-400 mb-4">

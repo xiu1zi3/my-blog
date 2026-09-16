@@ -109,7 +109,6 @@ const Gallery = () => {
 
   return (
     <div className="card mb-12">
-      <h2 className="text-2xl text-gray-600 font-bold mb-6">我的相册</h2>
 
       <div
         className="relative mx-auto w-full max-w-xl aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-primary"
