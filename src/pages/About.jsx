@@ -1,6 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Gallery from '../components/Gallery';
+
+// 头像图片配置：把头像图片放到 public 目录（例如 public/avatar.png），
+// 文件名与下方保持一致即可自动显示；图片不存在时会自动回退为文字头像。
+const AVATAR_SRC = '/src/assets/avatar.jpg';
+
+// 栏目显示开关：需要在页面上展示某个栏目时，把对应项改为 true 即可
+const SECTION_VISIBLE = {
+  papers: false,     // 论文发表
+  interests: false,  // 兴趣方向
+  education: false,  // 教育经历
+  work: false,       // 工作经历
+  skills: false,     // 技术栈
+};
 
 const About = () => {
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
+
   return (
     <div className="min-h-screen py-12">
       <div className="container mx-auto px-4">
@@ -12,13 +28,22 @@ const About = () => {
         <div className="card mb-12">
           <div className="flex flex-col md:flex-row items-center">
             <div className="mb-6 md:mb-0 md:mr-8">
-              <div className="w-40 h-40 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-4xl font-bold text-primary">修子</span>
+              <div className="w-40 h-40 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                {AVATAR_SRC && !avatarLoadError ? (
+                  <img
+                    src={AVATAR_SRC}
+                    alt="修子的头像"
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarLoadError(true)}
+                  />
+                ) : (
+                  <span className="text-4xl font-bold text-primary">修子</span>
+                )}
               </div>
             </div>
             <div className="text-center md:text-left">
               <h2 className="text-2xl text-gray-600 font-bold mb-2">修子</h2>
-              <p className="text-primary mb-4"> 热爱技术，分享踩坑笔记</p>
+              <p className="text-primary mb-4"> 专注全栈实战，分享踩坑笔记</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
                 <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
                   全栈开发
@@ -37,7 +62,25 @@ const About = () => {
           </div>
         </div>
 
+        {/* 论文发表（默认隐藏，将 SECTION_VISIBLE.papers 改为 true 即可展示） */}
+        {SECTION_VISIBLE.papers && (
+          <div className="card mb-12">
+            <h2 className="text-2xl text-gray-600 font-bold mb-6">论文发表</h2>
+            <div className="space-y-6">
+              <div className="relative pl-8 border-l-2 border-primary">
+                <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
+                <h3 className="text-lg text-gray-600 font-semibold">论文标题</h3>
+                <p className="text-gray-600 mt-1 text-sm">作者 · 期刊/会议名称 · 发表时间</p>
+                <p className="text-gray-600 mt-2">
+                  在这里填写论文摘要、研究方向、收录情况以及论文链接。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 兴趣方向 */}
+        {SECTION_VISIBLE.interests && (
         <div className="card mb-12">
           <h2 className="text-2xl text-gray-600 font-bold mb-6">兴趣方向</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,8 +154,10 @@ const About = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* 教育经历 */}
+        {SECTION_VISIBLE.education && (
         <div className="card mb-12">
           <h2 className="text-2xl text-gray-600 font-bold mb-6">教育经历</h2>
           <div className="relative pl-8 border-l-2 border-primary">
@@ -123,8 +168,10 @@ const About = () => {
               </p>
           </div>
         </div>
+        )}
 
         {/* 工作经历 */}
+        {SECTION_VISIBLE.work && (
         <div className="card mb-12">
           <h2 className="text-2xl text-gray-600 font-bold mb-6">工作经历</h2>
           <div className="space-y-6">
@@ -137,8 +184,10 @@ const About = () => {
             </div>
           </div>
         </div>
+        )}
 
         {/* 技术栈 */}
+        {SECTION_VISIBLE.skills && (
         <div className="card mb-12">
           <h2 className="text-2xl text-gray-600 font-bold mb-6">技术栈</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -169,6 +218,10 @@ const About = () => {
             </div>
           </div>
         </div>
+        )}
+
+        {/* 我的相册（轮播画廊，照片来自 src/assets/gallery/） */}
+        <Gallery />
 
         {/* 社交账号 */}
         <div className="card">
@@ -191,7 +244,7 @@ const About = () => {
               GitHub
             </a>
             <a
-              href="https://www.zhihu.com/people/ai-ji-22-54"
+              href="https://www.zhihu.com/people/xiu1zi3"
               className="flex items-center text-gray-600 hover:text-primary transition-colors"
             >
               <svg
