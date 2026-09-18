@@ -55,9 +55,11 @@ const CodeBlock = ({ children, language, ...props }) => {
 
 // 提取标题的函数
 const extractHeadings = (content) => {
-  const headings = content.match(/^(#+\s+.+)$/gm);
+  // 移除围栏代码块，避免代码注释（如 Python 的 # 注释）被误识别为标题
+  const contentWithoutCode = content.replace(/(^|\n)(```|~~~)[\s\S]*?(```|~~~)(?=\n|$)/g, '\n');
+  const headings = contentWithoutCode.match(/^(#+\s+.+)$/gm);
   if (!headings) return [];
-  
+
   return headings.map(heading => {
     const levelMatch = heading.match(/^(#{1,6})\s+(.+)$/);
     if (levelMatch) {
@@ -71,10 +73,10 @@ const extractHeadings = (content) => {
   }).filter(Boolean);
 };
 
-// TOC 组件
+// TOC 组件（小屏下的文章内目录）
 const TOC = ({ headings }) => {
   if (!headings || headings.length === 0) return null;
-  
+
   return (
     <div className="toc mb-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <h2 className="text-xl font-bold mb-4">目录</h2>
@@ -94,6 +96,59 @@ const TOC = ({ headings }) => {
   );
 };
 
+// 各级标题在左侧目录中的左缩进（参考 vdoing 主题）
+const HEADING_PADDING_LEFT = {
+  1: 15,
+  2: 15,
+  3: 27,
+  4: 37,
+  5: 47,
+  6: 57,
+};
+
+// 左侧悬浮目录组件（宽屏显示，参考 xiu1zi3.github.io 的 right-menu）
+const SideTOC = ({ headings, activeAnchor, onHeadingClick }) => {
+  if (!headings || headings.length === 0) return null;
+
+  return (
+    <aside className="hidden xl:block absolute top-0 bottom-0 right-full w-56 mr-5 pointer-events-none">
+      <nav
+        aria-label="文章目录"
+        className="sticky top-20 pointer-events-auto"
+      >
+        <div className="text-base font-semibold text-gray-800 dark:text-gray-200 pb-2.5 border-b border-gray-200 dark:border-gray-700">
+          目录
+        </div>
+        <ul className="toc-scroll mt-1 max-h-[75vh] overflow-hidden hover:overflow-y-auto focus-within:overflow-y-auto pr-1">
+          {headings.map((heading, index) => {
+            const isActive = heading.anchor === activeAnchor;
+            return (
+              <li key={index}>
+                <a
+                  href={`#${heading.anchor}`}
+                  onClick={(event) => onHeadingClick(event, heading.anchor)}
+                  title={heading.text}
+                  className={`relative block py-1 pr-[15px] text-[13px] leading-5 truncate transition-colors duration-200 ${
+                    isActive
+                      ? 'text-primary font-medium opacity-100'
+                      : 'text-gray-500 dark:text-gray-400 opacity-75 hover:opacity-100 hover:text-gray-900 dark:hover:text-gray-100'
+                  }`}
+                  style={{ paddingLeft: HEADING_PADDING_LEFT[heading.level] || 15 }}
+                >
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-3.5 bg-primary rounded-r" />
+                  )}
+                  {heading.text}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </aside>
+  );
+};
+
 const Article = () => {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
@@ -104,8 +159,19 @@ const Article = () => {
   const { isDark } = useTheme();
   const giscusRef = useRef(null);
   const markdownRef = useRef(null);
-  
-  useEffect(() => { 
+  const [activeAnchor, setActiveAnchor] = useState('');
+
+  // 点击左侧目录：平滑滚动到对应标题并同步地址栏 hash
+  const handleHeadingClick = (event, anchor) => {
+    const target = document.getElementById(anchor);
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.history.replaceState(null, '', `#${encodeURIComponent(anchor)}`);
+    setActiveAnchor(anchor);
+  };
+
+  useEffect(() => {
     const fetchArticle = async () => {
       try {
         const data = await getArticle(id);
@@ -219,6 +285,79 @@ const Article = () => {
     };
   }, [isDark, article]);
 
+  // 滚动监听：根据当前阅读位置高亮左侧目录项
+  useEffect(() => {
+    if (!article) return undefined;
+
+    const headingElements = headings
+      .map((heading) => document.getElementById(heading.anchor))
+      .filter(Boolean);
+
+    const setActiveByScroll = () => {
+      // 真正滚动到页面底部（且最后一个标题已进入视口）时，高亮最后一个标题。
+      // 可见性判断可避免评论等异步内容尚未加载、文档暂时变短时的误判。
+      const last = headingElements[headingElements.length - 1];
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom && last && last.getBoundingClientRect().top < window.innerHeight) {
+        setActiveAnchor(last.id);
+        return;
+      }
+      let current = '';
+      for (const element of headingElements) {
+        if (element.getBoundingClientRect().top <= 90) {
+          current = element.id;
+        } else {
+          break;
+        }
+      }
+      setActiveAnchor((prev) => (prev === current ? prev : current));
+    };
+
+    let ticking = false;
+    const scheduleUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        ticking = false;
+        setActiveByScroll();
+      });
+    };
+
+    const handleHashChange = () => {
+      setActiveAnchor(decodeURIComponent(window.location.hash.slice(1)));
+    };
+
+    // 评论、图片等异步内容会改变文档高度，监听尺寸变化重新计算高亮项
+    const resizeObserver = new ResizeObserver(scheduleUpdate);
+    resizeObserver.observe(document.body);
+
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('hashchange', handleHashChange);
+
+    // 通过带 hash 的链接打开（刷新/外链）时，等待正文渲染后定位到对应标题
+    const hashAnchor = decodeURIComponent(window.location.hash.slice(1));
+    const timer = setTimeout(() => {
+      if (hashAnchor) {
+        const target = document.getElementById(hashAnchor);
+        if (target) {
+          target.scrollIntoView({ block: 'start' });
+          return;
+        }
+      }
+      setActiveByScroll();
+    }, 150);
+
+    setActiveByScroll();
+
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('hashchange', handleHashChange);
+      resizeObserver.disconnect();
+      clearTimeout(timer);
+    };
+  }, [article, headings]);
+
   if (loading) {
     return <Loading type="article" />;
   }
@@ -235,7 +374,13 @@ const Article = () => {
   
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-3xl mx-auto">
+      <div className="relative max-w-3xl mx-auto">
+        {/* 宽屏下显示在文章左侧的悬浮目录 */}
+        <SideTOC
+          headings={headings}
+          activeAnchor={activeAnchor}
+          onHeadingClick={handleHeadingClick}
+        />
         {/* 头图展示 */}
         {article.headerImage && (
           <div className="mb-8 flex justify-center">
@@ -269,8 +414,8 @@ const Article = () => {
         </div>
         
         <div className="prose dark:prose-invert max-w-none" ref={markdownRef}>
-          {/* 显示目录 */}
-          {hasTOC && <TOC headings={headings} />} 
+          {/* 文章内目录（始终显示；左侧悬浮目录为额外补充） */}
+          {hasTOC && <TOC headings={headings} />}
           
           <ReactMarkdown
             components={{
