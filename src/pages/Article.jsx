@@ -1,11 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import javaLang from 'react-syntax-highlighter/dist/esm/languages/prism/java';
+import bashLang from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
+import pythonLang from 'react-syntax-highlighter/dist/esm/languages/prism/python';
+import javascriptLang from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
+import cppLang from 'react-syntax-highlighter/dist/esm/languages/prism/cpp';
+import markupLang from 'react-syntax-highlighter/dist/esm/languages/prism/markup';
+import propertiesLang from 'react-syntax-highlighter/dist/esm/languages/prism/properties';
 import { getArticle } from '../utils/articles';
 import { useTheme } from '../context/ThemeContext';
 import Loading from '../components/Loading';
+
+// 只注册博客中实际使用的语言，避免把 Prism 全量 270+ 种语言打进文章页
+SyntaxHighlighter.registerLanguage('java', javaLang);
+SyntaxHighlighter.registerLanguage('shell', bashLang);
+SyntaxHighlighter.registerLanguage('sh', bashLang);
+SyntaxHighlighter.registerLanguage('bash', bashLang);
+SyntaxHighlighter.registerLanguage('python', pythonLang);
+SyntaxHighlighter.registerLanguage('py', pythonLang);
+SyntaxHighlighter.registerLanguage('javascript', javascriptLang);
+SyntaxHighlighter.registerLanguage('js', javascriptLang);
+SyntaxHighlighter.registerLanguage('cpp', cppLang);
+SyntaxHighlighter.registerLanguage('c', cppLang);
+SyntaxHighlighter.registerLanguage('xml', markupLang);
+SyntaxHighlighter.registerLanguage('html', markupLang);
+SyntaxHighlighter.registerLanguage('properties', propertiesLang);
 
 const CodeBlock = ({ children, language, ...props }) => {
   const [copied, setCopied] = useState(false);
