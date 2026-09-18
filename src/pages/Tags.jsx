@@ -9,6 +9,8 @@ const Tags = () => {
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -44,6 +46,10 @@ const Tags = () => {
   const filteredArticles = selectedTag
     ? articles.filter(article => article.tags && article.tags.includes(selectedTag))
     : [];
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentArticles = filteredArticles.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage);
 
   // 根据文章数量计算字体大小
   const getFontSize = (count) => {
@@ -75,7 +81,7 @@ const Tags = () => {
             {tags.map((tag) => (
               <button
                 key={tag}
-                onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                onClick={() => { setSelectedTag(selectedTag === tag ? null : tag); setCurrentPage(1); }}
                 className={`transition-all hover:text-primary ${selectedTag === tag
                   ? 'text-primary font-bold'
                   : 'text-gray-600'
@@ -95,7 +101,7 @@ const Tags = () => {
               标签: {selectedTag} ({tagCounts[selectedTag]} 篇文章)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredArticles.map((article) => (
+              {currentArticles.map((article) => (
                 <Link key={article.id} to={`/article/${article.id}`} className="block">
                   <div className="card hover:shadow-lg transition-shadow duration-300">
                     <div className="mb-4">
@@ -125,6 +131,56 @@ const Tags = () => {
                 </Link>
               ))}
             </div>
+
+            {/* 分页导航 */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex flex-col md:flex-row justify-between items-center">
+                <div className="flex space-x-2 mb-4 md:mb-0">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    上一页
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 border rounded-md ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-gray-100'}`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    下一页
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">每页显示：</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-2 border rounded-md"
+                  >
+                    <option value="3">3篇</option>
+                    <option value="6">6篇</option>
+                    <option value="9">9篇</option>
+                    <option value="12">12篇</option>
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
