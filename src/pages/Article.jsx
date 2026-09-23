@@ -75,6 +75,63 @@ const CodeBlock = ({ children, language, ...props }) => {
   );
 };
 
+// Markdown 代码块渲染器（模块级，避免每次渲染重建 DOM）
+const MarkdownCode = ({ inline, className, children, ...props }) => {
+  const match = /language-(\w+)/.exec(className || '');
+  if (className && className.includes('language-mermaid')) {
+    return <div className="mermaid">{children}</div>;
+  }
+  return !inline && match ? (
+    <CodeBlock language={match[1]} {...props}>
+      {children}
+    </CodeBlock>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  );
+};
+
+// 提取标题文本，生成与 extractHeadings 一致的锚点 ID
+const getHeadingText = (children) => {
+  if (typeof children === 'string') return children;
+  if (Array.isArray(children)) {
+    return children.map((child) => (typeof child === 'string' ? child : '')).join('');
+  }
+  return '';
+};
+
+const getHeadingAnchor = (children) =>
+  getHeadingText(children)
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
+
+// 标题渲染器工厂：组件身份在各次渲染间保持稳定，
+// 避免内联函数导致 ReactMarkdown 反复卸载重建标题节点（会使锚点失效、
+// 滚动目录拿到脱离文档的旧节点而误判高亮）
+const createHeadingRenderer = (Tag) =>
+  function Heading({ children, ...props }) {
+    return (
+      <Tag id={getHeadingAnchor(children)} style={{ scrollMarginTop: '80px' }} {...props}>
+        {children}
+      </Tag>
+    );
+  };
+
+// 稳定的 Markdown 渲染器集合（模块级单例）
+const MARKDOWN_COMPONENTS = {
+  code: MarkdownCode,
+  h1: createHeadingRenderer('h1'),
+  h2: createHeadingRenderer('h2'),
+  h3: createHeadingRenderer('h3'),
+  h4: createHeadingRenderer('h4'),
+  h5: createHeadingRenderer('h5'),
+  h6: createHeadingRenderer('h6'),
+  br: (props) => <br {...props} />,
+  div: ({ children, ...props }) => <div {...props}>{children}</div>,
+};
+
 // 提取标题的函数
 const extractHeadings = (content) => {
   // 移除围栏代码块，避免代码注释（如 Python 的 # 注释）被误识别为标题
@@ -182,15 +239,23 @@ const Article = () => {
   const giscusRef = useRef(null);
   const markdownRef = useRef(null);
   const [activeAnchor, setActiveAnchor] = useState('');
+  // 点击目录后的「目标锁」：平滑滚动期间强制高亮所点击的标题，
+  // 直到滚动位置自然到达该标题后才交还给 scroll-spy，
+  // 避免高亮随平滑滚动沿中间标题一路滑动
+  const pendingAnchorRef = useRef(null);
+  const lastScrollYRef = useRef(0);
 
   // 点击左侧目录：平滑滚动到对应标题并同步地址栏 hash
   const handleHeadingClick = (event, anchor) => {
     const target = document.getElementById(anchor);
     if (!target) return;
     event.preventDefault();
+    // 先上锁再启动滚动：平滑滚动途中的 scroll 事件不得改写高亮
+    pendingAnchorRef.current = anchor;
+    // 点击瞬间立即点亮目标标题（不等滚动到达）
+    setActiveAnchor(anchor);
     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     window.history.replaceState(null, '', `#${encodeURIComponent(anchor)}`);
-    setActiveAnchor(anchor);
   };
 
   useEffect(() => {
@@ -315,16 +380,12 @@ const Article = () => {
       .map((heading) => document.getElementById(heading.anchor))
       .filter(Boolean);
 
+    // 新文章挂载：丢弃上一篇文章可能残留的点击锁
+    pendingAnchorRef.current = null;
+    lastScrollYRef.current = window.scrollY;
+
     const setActiveByScroll = () => {
-      // 真正滚动到页面底部（且最后一个标题已进入视口）时，高亮最后一个标题。
-      // 可见性判断可避免评论等异步内容尚未加载、文档暂时变短时的误判。
-      const last = headingElements[headingElements.length - 1];
-      const atBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-      if (atBottom && last && last.getBoundingClientRect().top < window.innerHeight) {
-        setActiveAnchor(last.id);
-        return;
-      }
+      // 常规判定：最后一个顶部越过判定线（90px）的标题为当前标题
       let current = '';
       for (const element of headingElements) {
         if (element.getBoundingClientRect().top <= 90) {
@@ -333,6 +394,35 @@ const Article = () => {
           break;
         }
       }
+
+      // 兜底：仅当没有任何标题越线（例如最后一节内容很短、滚动到底时
+      // 最后一个标题仍未越过判定线）且确实到达页面底部时，才高亮最后一个标题。
+      // 不能在已有标题越线时使用底部规则，否则评论加载失败导致文档偏短时，
+      // 停留在倒数第二个标题也会被误判为最后一个标题。
+      if (!current) {
+        const last = headingElements[headingElements.length - 1];
+        const atBottom =
+          window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+        if (atBottom && last && last.getBoundingClientRect().top < window.innerHeight) {
+          current = last.id;
+        }
+      }
+
+      // 点击目录后的平滑滚动期间：保持点击瞬间的高亮，
+      // 直到滚动位置自然到达目标标题；若滚动已停止（如目标已在
+      // 视口顶部、页面无法继续滚动），也立即解除锁定交还给 scroll-spy
+      const pending = pendingAnchorRef.current;
+      if (pending) {
+        const scrollStopped = window.scrollY === lastScrollYRef.current;
+        if (current === pending || scrollStopped) {
+          pendingAnchorRef.current = null;
+        } else {
+          lastScrollYRef.current = window.scrollY;
+          return;
+        }
+      }
+      lastScrollYRef.current = window.scrollY;
+
       setActiveAnchor((prev) => (prev === current ? prev : current));
     };
 
@@ -350,12 +440,37 @@ const Article = () => {
       setActiveAnchor(decodeURIComponent(window.location.hash.slice(1)));
     };
 
-    // 评论、图片等异步内容会改变文档高度，监听尺寸变化重新计算高亮项
+    // 图片、代码高亮、Giscus 评论等异步内容会不断改变文档高度，
+    // 多源监听尺寸变化，避免在布局收缩的瞬态算出错误高亮后无人纠正
     const resizeObserver = new ResizeObserver(scheduleUpdate);
+    resizeObserver.observe(document.documentElement);
     resizeObserver.observe(document.body);
+    if (markdownRef.current) {
+      resizeObserver.observe(markdownRef.current);
+    }
+    if (giscusRef.current) {
+      resizeObserver.observe(giscusRef.current);
+    }
+
+    // 图片全部加载完成（触发 load 时页面高度可能已多次变化）
+    const handleWindowLoad = scheduleUpdate;
+
+    // 用户手动滚动（滚轮/触摸/键盘）时立即放弃点击锁，交还给正常 scroll-spy
+    const cancelPendingLock = () => {
+      pendingAnchorRef.current = null;
+    };
 
     window.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('load', handleWindowLoad);
+    window.addEventListener('wheel', cancelPendingLock, { passive: true });
+    window.addEventListener('touchmove', cancelPendingLock, { passive: true });
+    window.addEventListener('keydown', cancelPendingLock);
+
+    // 挂载后短期内按退避间隔反复重算，覆盖高亮渲染、图片占位等布局抖动
+    const settleTimers = [200, 500, 1000, 1800, 3000].map((delay) =>
+      setTimeout(scheduleUpdate, delay),
+    );
 
     // 通过带 hash 的链接打开（刷新/外链）时，等待正文渲染后定位到对应标题
     const hashAnchor = decodeURIComponent(window.location.hash.slice(1));
@@ -364,7 +479,6 @@ const Article = () => {
         const target = document.getElementById(hashAnchor);
         if (target) {
           target.scrollIntoView({ block: 'start' });
-          return;
         }
       }
       setActiveByScroll();
@@ -375,8 +489,13 @@ const Article = () => {
     return () => {
       window.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('load', handleWindowLoad);
+      window.removeEventListener('wheel', cancelPendingLock);
+      window.removeEventListener('touchmove', cancelPendingLock);
+      window.removeEventListener('keydown', cancelPendingLock);
       resizeObserver.disconnect();
       clearTimeout(timer);
+      settleTimers.forEach(clearTimeout);
     };
   }, [article, headings]);
 
@@ -439,76 +558,7 @@ const Article = () => {
           {/* 文章内目录（始终显示；左侧悬浮目录为额外补充） */}
           {hasTOC && <TOC headings={headings} />}
           
-          <ReactMarkdown
-            components={{
-              code({ inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '');
-                if (className && className.includes('language-mermaid')) {
-                  return <div className="mermaid">{children}</div>;
-                }
-                return !inline && match ? (
-                  <CodeBlock language={match[1]} {...props}>
-                    {children}
-                  </CodeBlock>
-                ) : (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                );
-              },
-              // 为标题添加锚点 ID 和 scroll-margin-top
-              h1({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h1 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h1>;
-              },
-              h2({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h2 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h2>;
-              },
-              h3({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h3 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h3>;
-              },
-              h4({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h4 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h4>;
-              },
-              h5({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h5 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h5>;
-              },
-              h6({ children, ...props }) {
-                // 提取标题文本
-                const text = typeof children === 'string' ? children : children.map(child => typeof child === 'string' ? child : '').join('');
-                // 生成锚点 ID，保留汉字和字母数字字符
-                const id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '');
-                return <h6 id={id} style={{ scrollMarginTop: '80px' }} {...props}>{children}</h6>;
-              },
-              // 确保br标签被正确渲染
-              br({ ...props }) {
-                return <br {...props} />;
-              },
-              // 确保div标签被正确渲染
-              div({ children, ...props }) {
-                return <div {...props}>{children}</div>;
-              }
-            }}
-          >
+          <ReactMarkdown components={MARKDOWN_COMPONENTS}>
             {contentWithoutTOC}
           </ReactMarkdown>
         </div>
