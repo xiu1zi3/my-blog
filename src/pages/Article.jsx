@@ -207,7 +207,7 @@ const SideTOC = ({ headings, activeAnchor, onHeadingClick }) => {
                   href={`#${heading.anchor}`}
                   onClick={(event) => onHeadingClick(event, heading.anchor)}
                   title={heading.text}
-                  className={`relative block py-1 pr-[15px] text-[13px] leading-5 truncate transition-colors duration-200 ${
+                  className={`relative block py-1.5 pr-[15px] text-base leading-6 truncate transition-colors duration-200 ${
                     isActive
                       ? 'text-primary font-medium opacity-100'
                       : 'text-gray-500 dark:text-gray-400 opacity-75 hover:opacity-100 hover:text-gray-900 dark:hover:text-gray-100'
