@@ -1,50 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getArticles, getTotalWordCount, getWordMilestone } from '../utils/articles';
+import { getArticles } from '../utils/articles';
 import Loading from '../components/Loading';
-
-// 加载不蒜子访客统计脚本（全局只加载一次），脚本会把访客数写入
-// id 为 busuanzi_value_site_uv / busuanzi_value_site_pv 的 span 内。
-const loadBusuanzi = () => {
-  if (document.getElementById('busuanzi-script')) return;
-  const script = document.createElement('script');
-  script.id = 'busuanzi-script';
-  script.async = true;
-  script.src = '//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-  document.body.appendChild(script);
-};
-
-// 模块级缓存：不蒜子脚本只在首次加载时写入一次目标 span，
-// 组件重挂载时 span 会被重建为空，因此需要在内存里记住已读到的数值。
-let cachedVisitorCount = null;
-
-// 轮询读取不蒜子写入的站点 UV，拿到后回调并停止轮询
-const readSiteUV = (onValue, timeout = 8000) => {
-  if (cachedVisitorCount !== null) {
-    onValue(cachedVisitorCount);
-    return;
-  }
-  const start = Date.now();
-  const timer = setInterval(() => {
-    const el = document.getElementById('busuanzi_value_site_uv');
-    if (el && el.textContent) {
-      clearInterval(timer);
-      cachedVisitorCount = el.textContent.trim();
-      onValue(cachedVisitorCount);
-      return;
-    }
-    if (Date.now() - start > timeout) {
-      clearInterval(timer);
-    }
-  }, 300);
-};
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
-  const [visitorCount, setVisitorCount] = useState(null);
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -61,12 +24,6 @@ const Home = () => {
     fetchArticles();
   }, []);
 
-  // 加载访客统计脚本并读取站点 UV
-  useEffect(() => {
-    loadBusuanzi();
-    readSiteUV((value) => setVisitorCount(value));
-  }, []);
-
   if (loading) {
     return <Loading type="home" />;
   }
@@ -76,29 +33,6 @@ const Home = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentArticles = articles.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(articles.length / itemsPerPage);
-
-  // 全站统计数据
-  const totalArticles = articles.length;
-  const totalWords = getTotalWordCount();
-  const milestone = getWordMilestone(totalWords);
-
-  const stats = [
-    {
-      label: '访客总数',
-      value: visitorCount ?? '—',
-      hint: visitorCount ? '来自不蒜子统计' : '统计加载中…',
-    },
-    {
-      label: '文章总数',
-      value: `${totalArticles}`,
-      hint: '篇',
-    },
-    {
-      label: '字数里程碑',
-      value: milestone,
-      hint: `累计 ${totalWords.toLocaleString()} 字`,
-    },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -114,34 +48,6 @@ const Home = () => {
           <Link to="/about" className="btn-primary">
             了解更多
           </Link>
-        </div>
-      </section>
-
-      {/* 站点统计 */}
-      <section className="py-10">
-        <div className="container mx-auto px-4">
-          {/* 不蒜子脚本的写入目标：带特定 ID 的隐藏 span，脚本把 UV/PV 写入此处，
-              再由 readSiteUV 读出并交给 React 状态渲染，避免 React 重渲染覆盖。 */}
-          <span id="busuanzi_value_site_uv" className="hidden" />
-          <span id="busuanzi_value_site_pv" className="hidden" />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-            {stats.map((item) => (
-              <div
-                key={item.label}
-                className="card flex flex-col items-center justify-center text-center"
-              >
-                <div className="text-3xl md:text-4xl font-bold text-primary">
-                  {item.value}
-                </div>
-                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {item.label}
-                  <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
-                    {item.hint}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
