@@ -10,7 +10,7 @@ import javascriptLang from 'react-syntax-highlighter/dist/esm/languages/prism/ja
 import cppLang from 'react-syntax-highlighter/dist/esm/languages/prism/cpp';
 import markupLang from 'react-syntax-highlighter/dist/esm/languages/prism/markup';
 import propertiesLang from 'react-syntax-highlighter/dist/esm/languages/prism/properties';
-import { getArticle } from '../utils/articles';
+import { getArticle, estimateReadingTime } from '../utils/articles';
 import { useTheme } from '../context/ThemeContext';
 import Loading from '../components/Loading';
 
@@ -207,7 +207,7 @@ const SideTOC = ({ headings, activeAnchor, onHeadingClick }) => {
                   href={`#${heading.anchor}`}
                   onClick={(event) => onHeadingClick(event, heading.anchor)}
                   title={heading.text}
-                  className={`relative block py-1 pr-[15px] text-[13px] leading-5 truncate transition-colors duration-200 ${
+                  className={`relative block py-1.5 pr-[15px] text-base leading-6 truncate transition-colors duration-200 ${
                     isActive
                       ? 'text-primary font-medium opacity-100'
                       : 'text-gray-500 dark:text-gray-400 opacity-75 hover:opacity-100 hover:text-gray-900 dark:hover:text-gray-100'
@@ -540,17 +540,23 @@ const Article = () => {
             {article.category}
           </span>
           <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex space-x-2">
+          <div className="flex flex-wrap justify-between items-center gap-3 mb-8">
+            <div className="flex flex-wrap space-x-2">
               {article.tags && Array.isArray(article.tags) ? article.tags.map((tag, index) => (
                 <span key={index} className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                   {tag}
                 </span>
               )) : null}
             </div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {article.date}
-            </span>
+            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+              <span>{article.date}</span>
+              <span className="hidden sm:inline">·</span>
+              <span title={`全文约 ${article.wordCount ?? 0} 字`}>
+                {article.wordCount ?? 0} 字
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span>约 {estimateReadingTime(article.wordCount)} 分钟阅读</span>
+            </div>
           </div>
         </div>
         

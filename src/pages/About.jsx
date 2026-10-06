@@ -1,9 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Gallery from '../components/Gallery';
+import { getArticles, getTotalWordCount, getWordMilestone } from '../utils/articles';
 // 头像图片：文件位于 src/assets/avatar.jpg，通过 import 引入，
 // Vite 构建时会自动生成正确的线上资源路径（勿写成硬编码的 /src/assets/...）；
 // 运行时图片加载失败会自动回退为文字头像。
 import AVATAR_SRC from '../assets/avatar.jpg';
+
+// 加载不蒜子访客统计脚本（全局只加载一次），脚本会把访客数写入
+// id 为 busuanzi_value_site_uv / busuanzi_value_site_pv 的 span 内。
+const loadBusuanzi = () => {
+  if (document.getElementById('busuanzi-script')) return;
+  const script = document.createElement('script');
+  script.id = 'busuanzi-script';
+  script.async = true;
+  script.src = '//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+  document.body.appendChild(script);
+};
+
+// 模块级缓存：不蒜子脚本只在首次加载时写入一次目标 span，
+// 组件重挂载时 span 会被重建为空，因此需要在内存里记住已读到的数值。
+let cachedVisitorCount = null;
+
+// 轮询读取不蒜子写入的站点 UV，拿到后回调并停止轮询
+const readSiteUV = (onValue, timeout = 8000) => {
+  if (cachedVisitorCount !== null) {
+    onValue(cachedVisitorCount);
+    return;
+  }
+  const start = Date.now();
+  const timer = setInterval(() => {
+    const el = document.getElementById('busuanzi_value_site_uv');
+    if (el && el.textContent) {
+      clearInterval(timer);
+      cachedVisitorCount = el.textContent.trim();
+      onValue(cachedVisitorCount);
+      return;
+    }
+    if (Date.now() - start > timeout) {
+      clearInterval(timer);
+    }
+  }, 300);
+};
 
 // 栏目显示开关：需要在页面上展示某个栏目时，把对应项改为 true 即可
 const SECTION_VISIBLE = {
@@ -16,6 +53,43 @@ const SECTION_VISIBLE = {
 
 const About = () => {
   const [avatarLoadError, setAvatarLoadError] = useState(false);
+  const [articleCount, setArticleCount] = useState(0);
+  const [visitorCount, setVisitorCount] = useState(null);
+
+  // 获取文章总数（用于站点数据统计）
+  useEffect(() => {
+    getArticles()
+      .then((data) => setArticleCount(data.length))
+      .catch((error) => console.error('Error fetching articles:', error));
+  }, []);
+
+  // 加载访客统计脚本并读取站点 UV
+  useEffect(() => {
+    loadBusuanzi();
+    readSiteUV((value) => setVisitorCount(value));
+  }, []);
+
+  // 全站字数统计
+  const totalWords = getTotalWordCount();
+  const milestone = getWordMilestone(totalWords);
+
+  const stats = [
+    {
+      label: '访客总数',
+      value: visitorCount ?? '—',
+      hint: visitorCount ? '来自不蒜子统计' : '统计加载中…',
+    },
+    {
+      label: '文章总数',
+      value: `${articleCount}`,
+      hint: '篇',
+    },
+    {
+      label: '字数里程碑',
+      value: milestone,
+      hint: `累计 ${totalWords.toLocaleString()} 字`,
+    },
+  ];
 
   return (
     <div className="min-h-screen py-12">
@@ -222,6 +296,33 @@ const About = () => {
 
         {/* 我的相册（轮播画廊，照片来自 src/assets/gallery/） */}
         <Gallery />
+
+        {/* 站点数据 */}
+        <div className="card mb-12">
+          <h2 className="text-2xl text-gray-600 font-bold mb-6">站点数据</h2>
+          {/* 不蒜子脚本的写入目标：带特定 ID 的隐藏 span，脚本把 UV/PV 写入此处，
+              再由 readSiteUV 读出并交给 React 状态渲染，避免 React 重渲染覆盖。 */}
+          <span id="busuanzi_value_site_uv" className="hidden" />
+          <span id="busuanzi_value_site_pv" className="hidden" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            {stats.map((item) => (
+              <div
+                key={item.label}
+                className="flex flex-col items-center justify-center text-center py-6 rounded-lg bg-gray-50 dark:bg-gray-800"
+              >
+                <div className="text-3xl md:text-4xl font-bold text-primary">
+                  {item.value}
+                </div>
+                <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {item.label}
+                  <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
+                    {item.hint}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* 社交账号 */}
         <div className="card">

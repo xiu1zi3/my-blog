@@ -21,6 +21,39 @@ const parseFrontMatter = (content) => {
 // 获取所有文章的元数据列表（同步数据，保留 async 签名以兼容调用方）
 export const getArticles = async () => articlesMeta;
 
+// 估算阅读时长（分钟）：混合中英文内容按约 400 字/分钟计算，不足 1 分钟按 1 分钟计
+export const estimateReadingTime = (wordCount) => {
+  const words = Number(wordCount) || 0;
+  const minutes = Math.ceil(words / 400);
+  return minutes < 1 ? 1 : minutes;
+};
+
+// 全站总字数（所有文章字数之和）
+export const getTotalWordCount = () =>
+  articlesMeta.reduce((sum, article) => sum + (Number(article.wordCount) || 0), 0);
+
+// 字数里程碑：返回已达到的最大里程碑，如 5k+、30k+、50k+
+// 阶梯为 1k / 5k / 10k / 20k / 30k / 50k / 100k / 200k ...
+const MILESTONE_THRESHOLDS = [
+  1_000, 5_000, 10_000, 20_000, 30_000, 50_000,
+  100_000, 200_000, 500_000, 1_000_000,
+];
+
+export const getWordMilestone = (totalWords) => {
+  const words = Number(totalWords) || 0;
+  let reached = 0;
+  for (const threshold of MILESTONE_THRESHOLDS) {
+    if (words >= threshold) {
+      reached = threshold;
+    } else {
+      break;
+    }
+  }
+  if (reached === 0) return '0';
+  // 千级以上用 k 缩写，例如 5000 -> 5k，50000 -> 50k
+  return `${Math.round(reached / 1000)}k+`;
+};
+
 // 获取单篇文章：只加载该文章对应的 Markdown chunk
 export const getArticle = async (id) => {
   const meta = articlesMeta.find(article => String(article.id) === String(id));
