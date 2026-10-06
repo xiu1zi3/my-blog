@@ -32,6 +32,32 @@ const parseArrayValue = (value) => {
   }
 }
 
+// 统计正文"字数"：中文字符按 1 计，英文按单词计。
+// 该数值用于文章页展示字数 & 阅读时长，以及首页的字数里程碑。
+const countWords = (content) => {
+  let text = content
+  // 围栏代码块
+  .replace(/(^|\n)(```|~~~)[\s\S]*?(```|~~~)(?=\n|$)/g, '\n')
+  // 行内代码
+  .replace(/`[^`]*`/g, ' ')
+  // 图片（连同替代文本一起去掉，避免图片描述计入字数）
+  .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+  // 链接：保留链接文本
+  .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+  // HTML 标签
+  .replace(/<[^>]+>/g, ' ')
+  // Markdown 标题、列表、引用标记
+  .replace(/^#+\s+/gm, '')
+  .replace(/^[-*+]\s+/gm, '')
+  .replace(/^>\s?/gm, '')
+  // 强调符号
+  .replace(/[*_~`]/g, '');
+
+  const chinese = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const english = (text.match(/[a-zA-Z]+/g) || []).length;
+  return chinese + english;
+};
+
 // 与客户端 src/utils/articles.js 一致的宽松 front matter 解析，
 // 不依赖严格 YAML，兼容 title:📚xxx、无引号中文数组等写法
 const parseFrontMatter = (raw) => {
@@ -70,12 +96,15 @@ const collectArticleMeta = () => {
       const id = name.replace(/\.md$/, '')
       const raw = fs.readFileSync(path.join(articlesDir, name), 'utf-8')
       const data = parseFrontMatter(raw)
+      // 剥离 front matter 后再统计正文字数
+      const body = raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '')
 
       return {
         id,
         ...data,
         tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
         date: data.date || '',
+        wordCount: countWords(body),
       }
     })
 
