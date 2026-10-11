@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import useDismissInitialLoader from '../hooks/useDismissInitialLoader';
 
 const NotFound = () => {
+  // 页面内容随组件挂载立即渲染，挂载后即移除初始加载动画
+  useDismissInitialLoader();
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">

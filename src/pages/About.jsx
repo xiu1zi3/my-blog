@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Gallery from '../components/Gallery';
 import { getArticles, getTotalWordCount, getWordMilestone } from '../utils/articles';
+import useDismissInitialLoader from '../hooks/useDismissInitialLoader';
 // 头像图片：文件位于 src/assets/avatar.jpg，通过 import 引入，
 // Vite 构建时会自动生成正确的线上资源路径（勿写成硬编码的 /src/assets/...）；
 // 运行时图片加载失败会自动回退为文字头像。
@@ -55,6 +56,9 @@ const About = () => {
   const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [articleCount, setArticleCount] = useState(0);
   const [visitorCount, setVisitorCount] = useState(null);
+
+  // 页面内容随组件挂载立即渲染，挂载后即移除初始加载动画
+  useDismissInitialLoader();
 
   // 获取文章总数（用于站点数据统计）
   useEffect(() => {

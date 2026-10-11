@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getArticles } from '../utils/articles';
 import Loading from '../components/Loading';
+import useDismissInitialLoader from '../hooks/useDismissInitialLoader';
 
 const Home = () => {
   const [articles, setArticles] = useState([]);
@@ -23,6 +24,9 @@ const Home = () => {
 
     fetchArticles();
   }, []);
+
+  // 首屏内容就绪后再移除初始加载动画，避免露出第二段加载动画
+  useDismissInitialLoader(!loading);
 
   if (loading) {
     return <Loading type="home" />;

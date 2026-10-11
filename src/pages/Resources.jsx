@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import useDismissInitialLoader from '../hooks/useDismissInitialLoader';
 
 const Resources = () => {
   // 资源分类数据
@@ -56,6 +57,9 @@ const Resources = () => {
   ];
 
   const [selectedCategory, setSelectedCategory] = useState(resourceCategories[0].id);
+
+  // 页面内容随组件挂载立即渲染，挂载后即移除初始加载动画
+  useDismissInitialLoader();
 
   return (
     <div className="min-h-screen py-12">
