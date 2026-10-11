@@ -210,18 +210,20 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // 当 React 应用挂载完成后，隐藏初始加载器
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          const loader = document.getElementById('initial-loader');
-          if (loader) {
-            loader.classList.add('hidden');
-            setTimeout(function() {
-              loader.remove();
-            }, 500);
-          }
-        }, 300);
-      });
+      // 首屏内容就绪后由 React 侧调用：整个入场过程只保留初始加载这一个动画，
+      // 避免加载器消失后又闪现第二段 React 加载动画
+      window.__dismissInitialLoader = function () {
+        const loader = document.getElementById('initial-loader');
+        if (!loader || loader.classList.contains('hidden')) return;
+        loader.classList.add('hidden');
+        setTimeout(function () {
+          loader.remove();
+        }, 500);
+      };
+      // 兜底：若 React 未能正常挂载（如脚本加载失败），8 秒后强制移除加载器
+      setTimeout(function () {
+        if (window.__dismissInitialLoader) window.__dismissInitialLoader();
+      }, 8000);
     </script>
   </body>
 </html>

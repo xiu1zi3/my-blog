@@ -13,6 +13,7 @@ import propertiesLang from 'react-syntax-highlighter/dist/esm/languages/prism/pr
 import { getArticle, estimateReadingTime } from '../utils/articles';
 import { useTheme } from '../context/ThemeContext';
 import Loading from '../components/Loading';
+import useDismissInitialLoader from '../hooks/useDismissInitialLoader';
 
 // 只注册博客中实际使用的语言，避免把 Prism 全量 270+ 种语言打进文章页
 SyntaxHighlighter.registerLanguage('java', javaLang);
@@ -244,6 +245,9 @@ const Article = () => {
   // 避免高亮随平滑滚动沿中间标题一路滑动
   const pendingAnchorRef = useRef(null);
   const lastScrollYRef = useRef(0);
+
+  // 首屏内容就绪后再移除初始加载动画，避免露出第二段加载动画
+  useDismissInitialLoader(!loading);
 
   // 点击左侧目录：平滑滚动到对应标题并同步地址栏 hash
   const handleHeadingClick = (event, anchor) => {
