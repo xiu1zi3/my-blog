@@ -19,7 +19,8 @@
 - 🌙 **主题切换**: 支持深色/浅色主题
 - 🏷️ **文章标签**: 支持按标签分类浏览
 - 📁 **文章分类**: 支持按类别组织文章
-- 🔍 **代码高亮**: 支持多种编程语言的语法高亮
+- 🔍 **关键词搜索**: 全站检索文章标题/摘要/标签/正文，并展示命中位置的局部上下文
+- 💻 **代码高亮**: 支持多种编程语言的语法高亮
 - 📊 **图表渲染**: 支持 Mermaid 图表渲染
 - 📱 **平滑导航**: 基于 React Router 的流畅页面导航
 
@@ -75,6 +76,9 @@ npm run lint
 
 ```
 personalDiary/
+├── build/                     # 构建期脚本
+│   ├── article-data.js        # 扫描 Markdown，生成文章元数据与搜索索引数据
+│   └── vite-plugins.js        # 注入 virtual:article-meta / virtual:search-index
 ├── public/                    # 静态资源目录
 │   ├── assets/               # 文章图片资源
 │   ├── favicon.svg           # 网站图标
@@ -94,13 +98,19 @@ personalDiary/
 │   │   ├── Home.jsx          # 首页
 │   │   ├── NotFound.jsx      # 404页面
 │   │   ├── Resources.jsx     # 资源页面
+│   │   ├── Search.jsx        # 关键词搜索页面
 │   │   └── Tags.jsx          # 标签页面
 │   ├── utils/                # 工具函数
-│   │   └── articles.js       # 文章处理工具
+│   │   ├── articles.js       # 文章处理工具
+│   │   ├── markdownText.js   # Markdown → 搜索纯文本（构建期与浏览器共用）
+│   │   ├── searchCore.js     # 搜索核心：关键词解析、排序、上下文切片、高亮
+│   │   └── searchIndex.js    # 搜索索引的按需加载入口
 │   ├── App.jsx               # 应用入口组件
 │   ├── App.css               # 应用样式
 │   ├── index.css             # 全局样式
 │   └── main.jsx              # 应用入口文件
+├── tests/
+│   └── search.test.mjs       # 搜索回归测试（npm test）
 ├── .gitignore                # Git 忽略配置
 ├── eslint.config.js          # ESLint 配置
 ├── index.html                # HTML 模板
@@ -126,13 +136,47 @@ personalDiary/
 title: 文章标题
 date: 2024-01-15
 category: 技术分享
-tags:
-  - React
-  - JavaScript
-description: 文章描述
+tags: [React, JavaScript]
+summary: 一句话摘要（列表页展示，也会参与搜索与摘要高亮）
+headerImage: /assets/article-images/your-image.png
 ---
 
 文章正文内容...
+```
+
+> 搜索索引只依赖 `title` / `summary` / `tags` / `category` 与正文，
+> 新增文章后无需额外配置；开发模式下保存 Markdown 会自动重建索引。
+
+## 关键词搜索
+
+导航栏的放大镜进入 `/search`，支持：
+
+- **多关键词**：空格分隔表示「同时包含」，例如 `多智能体 上下文`；若没有任何文章同时包含全部关键词，会自动退化为「包含任意关键词」并给出提示；
+- **精确短语**：用英文或中文引号包裹，例如 `"Super-agent 设计"`；
+- **相关度排序**：标题 > 标签 / 章节标题 > 摘要 > 正文，也可切换为按时间排序；
+- **局部上下文预览**：每篇文章最多展示 3 段命中位置的邻近上下文（约 200 字以内），
+  并标注命中所在章节；命中位于代码块时会标注「代码 · 语言」；
+- **高亮**：标题、摘要、标签与上下文片段中的关键词都会高亮；
+- **可分享的深链**：`/search?q=关键词` 可直接打开搜索结果；支持回车立即搜索、Esc 清空。
+
+实现要点：
+
+| 模块 | 作用 |
+| --- | --- |
+| `build/article-data.js` | 构建期扫描 `src/articles/*.md`，产出元数据与搜索文档（纯文本 + 章节偏移 + 代码块区间） |
+| `build/vite-plugins.js` | 以虚拟模块注入 `virtual:article-meta` 与 `virtual:search-index` |
+| `src/utils/markdownText.js` | Markdown → 纯文本（构建期与浏览器共用，含 CRLF/围栏代码块处理） |
+| `src/utils/searchCore.js` | 关键词解析、相关度评分、上下文切片、高亮分段（纯函数） |
+| `src/utils/searchIndex.js` | 索引按需加载（只在进入 /search 时下载）与搜索入口 |
+| `tests/search.test.mjs` | 搜索回归测试 |
+
+索引体积与站点规模成正比：当前 50 篇文章、约 8.6 万字，对应索引约 190 KB（gzip ≈ 76 KB），
+且只在搜索页加载，不影响首屏。若将来文章数增长到数百篇，可在此基础上把索引拆成分片按需加载。
+
+运行搜索测试：
+
+```bash
+npm test
 ```
 
 ## 部署

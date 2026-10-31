@@ -26,4 +26,11 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    // 构建脚本、测试脚本与根目录配置文件运行在 Node 中
+    files: ['build/**/*.js', 'tests/**/*.mjs', '*.config.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
 ])

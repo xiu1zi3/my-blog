@@ -46,13 +46,14 @@ export const getArticles = async () => {
 
 核心思路：**元数据与正文分离 + 路由级代码分割 + 重依赖按需加载**，使首屏体积与文章总数脱钩。
 
-### 3.1 构建期生成文章元数据索引（vite.config.js）
+### 3.1 构建期生成文章数据（build/article-data.js + build/vite-plugins.js）
 
-新增一个内置 Vite 插件（不引入新依赖）：
+新增内置 Vite 插件（不引入新依赖），产出两个虚拟模块：
 
-- 构建时扫描 `src/articles/*.md` 的 front matter，只提取 `title/category/summary/tags/date/headerImage`，生成虚拟模块 `virtual:article-meta`（本质是一个小 JSON 数组）。
+- **`virtual:article-meta`**：构建时扫描 `src/articles/*.md` 的 front matter，只提取 `title/category/summary/tags/date/headerImage`（本质是一个小 JSON 数组）。
+- **`virtual:search-index`**：同一批文章剥离 Markdown 后的纯文本正文 + 章节偏移 + 代码块区间，供 `/search` 页做关键词检索与上下文预览（只在进入搜索页时按需加载，首屏不受影响）。
 - 元数据按日期降序排序，`tags` 统一规整为数组，`date` 统一为 `YYYY-MM-DD` 字符串。
-- dev 模式下监听 md 文件的新增/修改/删除，自动失效虚拟模块并刷新页面（HMR）。
+- dev 模式下监听文章目录的新增/修改/删除，自动失效虚拟模块并刷新页面（HMR）。注意 Vite 的 watcher 开启了 `disableGlobbing`，必须 `watcher.add(目录)` 而不是 `watcher.add('目录/*.md')`，否则收不到任何事件。
 - 解析器沿用项目原有客户端的**宽松正则规则**，而非严格 YAML（原因见第 6 节踩坑）。
 
 ### 3.2 列表读索引、正文按篇懒加载（src/utils/articles.js）
@@ -109,7 +110,10 @@ export const getArticles = async () => {
 
 ### 5.3 dev 模式验证
 
-`npm run dev` 下虚拟模块（`/@id/__x00__virtual:article-meta`）返回 200 且内容正确，`articles.js` 的 import 被正确重写，开发体验不受影响。
+`npm run dev` 下两个虚拟模块（`/@id/__x00__virtual:article-meta`、`/@id/__x00__virtual:search-index`）均返回 200 且内容正确，`articles.js` 的 import 被正确重写；保存 Markdown 会整页刷新并重建搜索索引，开发体验不受影响。
+
+> 搜索索引只被 `/search` 页按需加载：构建产物中它是独立 chunk（当前约 193 KB / gzip 76 KB），
+> 不会进入首屏，也不影响文章页的按篇懒加载。
 
 ## 6. 踩坑记录
 
@@ -121,8 +125,10 @@ export const getArticles = async () => {
 
 | 文件 | 改动 |
 |---|---|
-| `vite.config.js` | 新增 article-meta 虚拟模块插件（扫描 + HMR） |
+| `build/article-data.js` | 扫描 Markdown，生成文章元数据与搜索索引数据 |
+| `build/vite-plugins.js` | 注入 `virtual:article-meta` / `virtual:search-index`（扫描 + HMR） |
 | `src/utils/articles.js` | 重写：列表读元数据索引，单篇正文懒加载 + 缓存 |
+| `src/utils/markdownText.js` / `searchCore.js` / `searchIndex.js` | 搜索纯文本转换、搜索核心与索引按需加载 |
 | `src/App.jsx` | 7 个路由改为 React.lazy + Suspense |
 | `src/pages/Article.jsx` | Prism 全量 → PrismLight，仅注册 7 种语言 |
 

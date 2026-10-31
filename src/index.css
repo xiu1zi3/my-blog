@@ -337,18 +337,76 @@ body {
   background-color: rgba(148, 163, 184, 0.6);
 }
 
-/* ========== 搜索高亮 ========== */
+/* ========== 关键词搜索 ========== */
 .search-mark {
-  background-color: rgba(64, 158, 255, 0.22);
+  background-color: rgba(64, 158, 255, 0.18);
   color: inherit;
   border-radius: 3px;
   padding: 0 2px;
   font-weight: 600;
+  box-shadow: inset 0 -0.35em 0 rgba(64, 158, 255, 0.14);
 }
 
 .dark .search-mark {
+  background-color: rgba(64, 158, 255, 0.3);
+  color: #dbeafe;
+}
+
+/* 搜索结果里的局部上下文预览 */
+.search-snippet {
+  position: relative;
+  padding-left: 0.75rem;
+}
+
+.search-snippet::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  width: 2px;
+  border-radius: 2px;
   background-color: rgba(64, 158, 255, 0.35);
-  color: #bfdbfe;
+}
+
+.search-snippet--code::before {
+  background-color: rgba(103, 194, 58, 0.5);
+}
+
+.search-snippet-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.125rem;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+.search-snippet-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: currentColor;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.search-snippet-text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.search-snippet--code .search-snippet-text {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(148, 163, 184, 0.12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
 }
 
 /* 正文链接统一为主题蓝 */
