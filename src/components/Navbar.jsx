@@ -8,7 +8,7 @@ const SunIcon = () => (
     className="h-6 w-6 transition-transform duration-300"
     fill="none"
     viewBox="0 0 24 24"
-    stroke="#303133"
+    stroke="currentColor"
     aria-hidden="true"
   >
     <path
@@ -34,6 +34,24 @@ const MoonIcon = () => (
       strokeLinejoin="round"
       strokeWidth={2}
       d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+    />
+  </svg>
+);
+
+const SearchIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-6 w-6 transition-transform duration-300"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"
     />
   </svg>
 );
@@ -89,13 +107,22 @@ const Navbar = () => {
             资源导航
           </NavLink>
         </div>
-        <button
-          onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-gray-300 dark:hover:bg-gray-300 transition-colors"
-          aria-label="Toggle theme"
-        >
-          {isDark ? <SunIcon /> : <MoonIcon />}
-        </button>
+        <div className="flex items-center gap-1">
+          <Link
+            to="/search"
+            className="p-2 rounded-full text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="搜索"
+          >
+            <SearchIcon />
+          </Link>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-full text-text hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {isDark ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
       </div>
     </nav>
   );

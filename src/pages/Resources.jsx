@@ -84,7 +84,7 @@ const Resources = () => {
         </div>
 
         <div className="card">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">
+          <h2 className="text-2xl text-text font-bold mb-6">
             {resourceCategories.find(cat => cat.id === selectedCategory)?.name}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -115,8 +115,8 @@ const Resources = () => {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-600">{resource.name}</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="font-semibold text-text">{resource.name}</h3>
+                    <p className="text-sm text-muted">
                       {resource.description}
                     </p>
                   </div>

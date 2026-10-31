@@ -14,6 +14,7 @@ const Categories = lazy(() => import('./pages/Categories'));
 const Tags = lazy(() => import('./pages/Tags'));
 const Resources = lazy(() => import('./pages/Resources'));
 const Article = lazy(() => import('./pages/Article'));
+const Search = lazy(() => import('./pages/Search'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
                   <Route path="/tags" element={<Tags />} />
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/article/:id" element={<Article />} />
+                  <Route path="/search" element={<Search />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

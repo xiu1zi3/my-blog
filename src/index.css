@@ -8,21 +8,25 @@
   --color-background: #f5f7fa;
   --color-card: #ffffff;
   --color-text: #303133;
+  --color-muted: #6b7280;
+  --color-card-border: #e5e7eb;
 }
 
 .dark {
   --color-primary: #409eff;
   --color-secondary: #67c23a;
-  --color-background: #1a1a1a;
-  --color-card: #2d2d2d;
-  --color-text: #e0e0e0;
+  --color-background: #141414;
+  --color-card: #1f1f1f;
+  --color-text: #e5e5e5;
+  --color-muted: #9ca3af;
+  --color-card-border: #2a2a2a;
 }
 
 /* index.html 内联样式把 html 背景固定为浅色且 html/body 高度为 100%，
    body 的深色背景只能覆盖首屏，内容超出首屏时会露出 html 的浅色背景，
    因此深色模式下需要让 html（画布）也保持深色 */
 html.dark {
-  background-color: #1a1a1a;
+  background-color: #141414;
 }
 
 body {
@@ -40,12 +44,13 @@ body {
   }
   .card {
     @apply bg-card rounded-lg shadow-md p-6 transition-all hover:shadow-lg;
+    border: 1px solid var(--color-card-border);
   }
   .container {
     @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   .nav-link {
-    @apply text-[#303133] hover:text-primary;
+    @apply text-text hover:text-primary transition-colors;
   }
   .nav-link.active {
     @apply text-primary font-medium;
@@ -330,4 +335,29 @@ body {
 
 .toc-scroll:hover::-webkit-scrollbar-thumb {
   background-color: rgba(148, 163, 184, 0.6);
+}
+
+/* ========== 搜索高亮 ========== */
+.search-mark {
+  background-color: rgba(64, 158, 255, 0.22);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+}
+
+.dark .search-mark {
+  background-color: rgba(64, 158, 255, 0.35);
+  color: #bfdbfe;
+}
+
+/* 正文链接统一为主题蓝 */
+.prose a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  text-decoration: none;
 }

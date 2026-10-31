@@ -93,6 +93,24 @@ const MarkdownCode = ({ inline, className, children, ...props }) => {
   );
 };
 
+// Markdown 链接渲染器：站内链接走 React Router（避免整页刷新），
+// 站外链接按普通 <a> 处理；正文链接统一显示为主题蓝（见 index.css 中 .prose a）
+const MarkdownLink = ({ node, href = '', children, ...props }) => {
+  const isInternal = href.startsWith('/') && !href.startsWith('//');
+  if (isInternal) {
+    return (
+      <Link to={href} {...props}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
+};
+
 // 提取标题文本，生成与 extractHeadings 一致的锚点 ID
 const getHeadingText = (children) => {
   if (typeof children === 'string') return children;
@@ -123,6 +141,7 @@ const createHeadingRenderer = (Tag) =>
 // 稳定的 Markdown 渲染器集合（模块级单例）
 const MARKDOWN_COMPONENTS = {
   code: MarkdownCode,
+  a: MarkdownLink,
   h1: createHeadingRenderer('h1'),
   h2: createHeadingRenderer('h2'),
   h3: createHeadingRenderer('h3'),
@@ -177,8 +196,12 @@ const TOC = ({ headings }) => {
 };
 
 // 各级标题在左侧目录中的左缩进（参考 vdoing 主题）
+// 注意：正文若用 # 作为章、## 作为节，二者缩进必须拉开，否则目录看不出层级。
+// 旧值把 1 级和 2 级都设为 15，导致 #/## 结构的文章目录“扁平化”；
+// 这里把 1 级改为最左的 3，2 级仍为 15，3 级起沿用 27/37/47/57，
+// 这样 #/## 文章能看到 12px 的层级缩进，而 ###/####（如 46.md）不受影响。
 const HEADING_PADDING_LEFT = {
-  1: 15,
+  1: 3,
   2: 15,
   3: 27,
   4: 37,

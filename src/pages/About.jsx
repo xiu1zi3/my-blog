@@ -120,7 +120,7 @@ const About = () => {
               </div>
             </div>
             <div className="text-center md:text-left">
-              <h2 className="text-2xl text-gray-600 font-bold mb-2">修子</h2>
+              <h2 className="text-2xl text-text font-bold mb-2">修子</h2>
               <p className="text-primary mb-4"> 专注全栈实战，分享踩坑笔记</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
                 <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm">
@@ -133,7 +133,7 @@ const About = () => {
                   后端开发
                 </span>
               </div>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted mb-4">
                 喜欢探索新技术，致力于分享实用的开发经验和最佳实践。
               </p>
             </div>
@@ -143,13 +143,13 @@ const About = () => {
         {/* 论文发表（默认隐藏，将 SECTION_VISIBLE.papers 改为 true 即可展示） */}
         {SECTION_VISIBLE.papers && (
           <div className="card mb-12">
-            <h2 className="text-2xl text-gray-600 font-bold mb-6">论文发表</h2>
+            <h2 className="text-2xl text-text font-bold mb-6">论文发表</h2>
             <div className="space-y-6">
               <div className="relative pl-8 border-l-2 border-primary">
                 <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-                <h3 className="text-lg text-gray-600 font-semibold">论文标题</h3>
-                <p className="text-gray-600 mt-1 text-sm">作者 · 期刊/会议名称 · 发表时间</p>
-                <p className="text-gray-600 mt-2">
+                <h3 className="text-lg text-text font-semibold">论文标题</h3>
+                <p className="text-muted mt-1 text-sm">作者 · 期刊/会议名称 · 发表时间</p>
+                <p className="text-muted mt-2">
                   在这里填写论文摘要、研究方向、收录情况以及论文链接。
                 </p>
               </div>
@@ -160,7 +160,7 @@ const About = () => {
         {/* 兴趣方向 */}
         {SECTION_VISIBLE.interests && (
         <div className="card mb-12">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">兴趣方向</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">兴趣方向</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center">
               <svg
@@ -177,7 +177,7 @@ const About = () => {
                   d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
                 />
               </svg>
-              <span className="text-gray-600">Golang 后端开发</span>
+              <span className="text-muted">Golang 后端开发</span>
             </div>
             <div className="flex items-center">
               <svg
@@ -194,7 +194,7 @@ const About = () => {
                   d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
                 />
               </svg>
-              <span className="text-gray-600">Golang 造轮子</span>
+              <span className="text-muted">Golang 造轮子</span>
             </div>
             <div className="flex items-center">
               <svg
@@ -211,7 +211,7 @@ const About = () => {
                   d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
                 />
               </svg>
-              <span className="text-gray-600">Java 后端开发</span>
+              <span className="text-muted">Java 后端开发</span>
             </div>
             <div className="flex items-center">
               <svg
@@ -228,7 +228,7 @@ const About = () => {
                   d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
                 />
               </svg>
-              <span className="text-gray-600">AI 应用开发</span>
+              <span className="text-muted">AI 应用开发</span>
             </div>
           </div>
         </div>
@@ -237,11 +237,11 @@ const About = () => {
         {/* 教育经历 */}
         {SECTION_VISIBLE.education && (
         <div className="card mb-12">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">教育经历</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">教育经历</h2>
           <div className="relative pl-8 border-l-2 border-primary">
             <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-            <h3 className="text-lg text-gray-600 font-semibold">2021.9-2025.6 - 上海交通大学 - 信息工程 - 集成电路学院（信息与电子工程学院）</h3>
-            <p className="text-gray-600 mt-2">
+            <h3 className="text-lg text-text font-semibold">2021.9-2025.6 - 上海交通大学 - 信息工程 - 集成电路学院（信息与电子工程学院）</h3>
+            <p className="text-muted mt-2">
                 主修课程：数据结构、计算机网络、数据库原理与安全。
               </p>
           </div>
@@ -251,12 +251,12 @@ const About = () => {
         {/* 工作经历 */}
         {SECTION_VISIBLE.work && (
         <div className="card mb-12">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">工作经历</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">工作经历</h2>
           <div className="space-y-6">
             <div className="relative pl-8 border-l-2 border-primary">
               <div className="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-primary"></div>
-              <h3 className="text-lg text-gray-600 font-semibold">2025.8-2026.3 - 华为 - 中央研究院 - 网络研究工程师</h3>
-              <p className="text-gray-600 mt-2">
+              <h3 className="text-lg text-text font-semibold">2025.8-2026.3 - 华为 - 中央研究院 - 网络研究工程师</h3>
+              <p className="text-muted mt-2">
                 原型机开发验证，FPGA样机开发以及组网打流验证。
               </p>
             </div>
@@ -267,10 +267,10 @@ const About = () => {
         {/* 技术栈 */}
         {SECTION_VISIBLE.skills && (
         <div className="card mb-12">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">技术栈</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">技术栈</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <h3 className="text-lg text-gray-600 font-semibold mb-3">后端</h3>
+              <h3 className="text-lg text-text font-semibold mb-3">后端</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                   Golang
@@ -281,7 +281,7 @@ const About = () => {
               </div>
             </div>
             <div>
-              <h3 className="text-lg text-gray-600 font-semibold mb-3">工具</h3>
+              <h3 className="text-lg text-text font-semibold mb-3">工具</h3>
               <div className="flex flex-wrap gap-2">
                 <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                   RocketMQ
@@ -303,7 +303,7 @@ const About = () => {
 
         {/* 站点数据 */}
         <div className="card mb-12">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">站点数据</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">站点数据</h2>
           {/* 不蒜子脚本的写入目标：带特定 ID 的隐藏 span，脚本把 UV/PV 写入此处，
               再由 readSiteUV 读出并交给 React 状态渲染，避免 React 重渲染覆盖。 */}
           <span id="busuanzi_value_site_uv" className="hidden" />
@@ -330,11 +330,11 @@ const About = () => {
 
         {/* 社交账号 */}
         <div className="card">
-          <h2 className="text-2xl text-gray-600 font-bold mb-6">社交账号</h2>
+          <h2 className="text-2xl text-text font-bold mb-6">社交账号</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
               href="https://github.com/xiu1zi3"
-              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              className="flex items-center text-muted hover:text-primary transition-colors"
               aria-label="GitHub"
             >
               <svg
@@ -350,7 +350,7 @@ const About = () => {
             </a>
             <a
               href="https://www.zhihu.com/people/xiu1zi3"
-              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              className="flex items-center text-muted hover:text-primary transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -364,7 +364,7 @@ const About = () => {
             </a>
             <a
               href="https://juejin.cn/user/416084651151929"
-              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              className="flex items-center text-muted hover:text-primary transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -379,7 +379,7 @@ const About = () => {
             </a>
             <a
               href="mailto:xiu1zi3@163.com"
-              className="flex items-center text-gray-600 hover:text-primary transition-colors"
+              className="flex items-center text-muted hover:text-primary transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

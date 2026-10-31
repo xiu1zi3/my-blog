@@ -69,10 +69,10 @@ const Home = () => {
                     <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-2">
                       {article.category}
                     </span>
-                    <h3 className="text-xl text-gray-600 font-bold mb-2">
+                    <h3 className="text-xl text-text font-bold mb-2">
                       {article.title}
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-muted mb-4">
                       {article.summary}
                     </p>
                   </div>
@@ -84,7 +84,7 @@ const Home = () => {
                         </span>
                       ))}
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                    <span className="text-sm text-muted">
                       {article.date}
                     </span>
                   </div>
@@ -100,7 +100,7 @@ const Home = () => {
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border rounded-md dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   上一页
                 </button>
@@ -109,7 +109,7 @@ const Home = () => {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`px-4 py-2 border rounded-md ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-gray-100'}`}
+                    className={`px-4 py-2 border rounded-md dark:border-gray-700 ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                   >
                     {page}
                   </button>
@@ -118,21 +118,21 @@ const Home = () => {
                 <button 
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 border rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 border rounded-md dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   下一页
                 </button>
               </div>
               
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">每页显示：</span>
+                <span className="text-sm text-muted">每页显示：</span>
                 <select 
                   value={itemsPerPage}
                   onChange={(e) => {
                     setItemsPerPage(Number(e.target.value));
                     setCurrentPage(1); // 重置到第一页
                   }}
-                  className="px-3 py-2 border rounded-md"
+                  className="px-3 py-2 border rounded-md dark:border-gray-700 dark:bg-gray-800"
                 >
                   <option value="3">3篇</option>
                   <option value="6">6篇</option>

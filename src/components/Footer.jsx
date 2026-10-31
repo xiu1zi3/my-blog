@@ -17,7 +17,7 @@ const Footer = () => {
           <div className="flex space-x-4">
             <a
               href="https://github.com/xiu1zi3"
-              className="text-gray-500 hover:text-primary transition-colors"
+              className="text-muted hover:text-primary transition-colors"
               aria-label="GitHub"
             >
               <svg
@@ -31,7 +31,7 @@ const Footer = () => {
             </a>
             <a
               href="https://www.zhihu.com/people/ai-ji-22-54"
-              className="text-gray-500 hover:text-primary transition-colors"
+              className="text-muted hover:text-primary transition-colors"
               aria-label="知乎"
             >
               <svg
@@ -45,7 +45,7 @@ const Footer = () => {
             </a>
             <a
               href="https://juejin.cn/user/416084651151929"
-              className="text-gray-500 hover:text-primary transition-colors"
+              className="text-muted hover:text-primary transition-colors"
               aria-label="掘金"
             >
               <svg
@@ -60,7 +60,7 @@ const Footer = () => {
             </a>
             <a
               href="mailto:xiu1zi3@163.com"
-              className="text-gray-500 hover:text-primary transition-colors"
+              className="text-muted hover:text-primary transition-colors"
               aria-label="邮箱"
             >
               <svg

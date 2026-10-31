@@ -85,7 +85,7 @@ const Gallery = () => {
   if (photos.length === 0) {
     return (
       <div className="card mb-12">
-        <h2 className="text-2xl text-gray-600 font-bold mb-6">我的相册</h2>
+        <h2 className="text-2xl text-text font-bold mb-6">我的相册</h2>
         <div className="mx-auto w-full max-w-xl aspect-[4/3] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center gap-3 px-6 text-gray-400 dark:text-gray-500">
           <svg
             xmlns="http://www.w3.org/2000/svg"
