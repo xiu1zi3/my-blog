@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="修子的个人博客，专注全栈实战，分享踩坑笔记" />
     <title>修子的日记</title>
+    <script>
+      // 主题初始化：首屏绘制前按本地保存的偏好设置 .dark 类，
+      // 让 HTML 背景、加载器与 React 主题保持一致，避免深浅色闪烁
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <style>
       /* 初始加载样式 - 在 React 加载前显示 */
       * {
@@ -13,24 +24,31 @@
         padding: 0;
         box-sizing: border-box;
       }
-      html, body {
+      html {
         height: 100%;
         font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         background-color: #f5f7fa;
       }
-      @media (prefers-color-scheme: dark) {
-        html, body {
-          background-color: #1a1a1a;
-        }
-        #initial-loader {
-          background-color: #1a1a1a;
-        }
-        #initial-loader .loader-title {
-          color: #e0e0e0 !important;
-        }
-        #initial-loader .loader-subtitle {
-          color: #9ca3af !important;
-        }
+      body {
+        min-height: 100vh;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background-color: #f5f7fa;
+      }
+      /* 深色主题统一由 .dark 类驱动，不再使用 prefers-color-scheme：
+         否则系统处于深色、站点处于浅色时，html 画布会被强制变黑，
+         与 body 及页面背景割裂，出现“一部分白、一部分黑”的问题 */
+      html.dark,
+      html.dark body {
+        background-color: #141414;
+      }
+      html.dark #initial-loader {
+        background-color: #141414;
+      }
+      html.dark .loader-title {
+        color: #e5e5e5;
+      }
+      html.dark .loader-subtitle {
+        color: #9ca3af;
       }
       #initial-loader {
         position: fixed;
