@@ -7,13 +7,16 @@
     <meta name="description" content="修子的个人博客，专注全栈实战，分享踩坑笔记" />
     <title>修子的日记</title>
     <script>
-      // 主题初始化：首屏绘制前按本地保存的偏好设置 .dark 类，
-      // 让 HTML 背景、加载器与 React 主题保持一致，避免深浅色闪烁
+      // 主题初始化：首屏绘制前决定是否加 .dark 类，规则与 ThemeContext 保持一致：
+      // 有本地显式选择则用它，否则跟随系统 prefers-color-scheme。
+      // 这样 HTML 背景、加载器与 React 主题一致，也不会出现深浅色闪烁。
       (function () {
         try {
-          if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-          }
+          var saved = localStorage.getItem('theme-preference');
+          var dark = saved
+            ? saved === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (dark) document.documentElement.classList.add('dark');
         } catch (e) {}
       })();
     </script>
